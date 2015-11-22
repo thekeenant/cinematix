@@ -7,23 +7,42 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Cinematix {
-    private JavaPlugin plugin;
-    private List<Location> points;
-    private int runnable = -1;
-    private boolean stop;
+    private final JavaPlugin plugin;
+    private final List<Location> points;
+    private final HashMap<Player,Integer> runnables;
+    private final HashMap<Player,Boolean> stopping;
 
+    /**
+     * Create a new Cinematix instance. Each has its own set of
+     * points and its own path to follow. Any number of players
+     * may view a single cinematix.
+     * @param plugin
+     */
     public Cinematix(JavaPlugin plugin) {
         this.plugin = plugin;
         this.points = new ArrayList<Location>();
+        this.runnables = new HashMap<Player, Integer>();
+        this.stopping = new HashMap<Player, Boolean>();
     }
 
+    /**
+     * @return The list of points to travel between.
+     */
     public List<Location> getPoints() {
         return points;
     }
 
+    /**
+     * Generates a list of locations (often in the hundreds, thousands) that forms
+     * a smooth path between all the points in this cinematix.
+     *
+     * @param seconds The time to travel between locations.
+     * @return A path of locations.
+     */
     public List<Location> generatePath(double seconds) {
         if (points.size() == 0)
             return new ArrayList<Location>();
@@ -94,11 +113,16 @@ public class Cinematix {
         return path;
     }
 
-    public boolean isRunning() {
-        return runnable != -1;
-    }
+    /**
+     * Start a cinematix for the given duration of time.
+     * @param player The player to engage in a cinematix.
+     * @param time The time in seconds.
+     * @return True if successful, false if the player is already in a cinematix.
+     */
+    public boolean start(final Player player, final double time) {
+        if (isRunning(player))
+            return false;
 
-    public void start(final Player player, final double time) {
         Runnable task = new Runnable() {
 
             int i = 0;
@@ -106,10 +130,13 @@ public class Cinematix {
 
             @Override
             public void run() {
+                boolean stop = stopping.get(player);
+
                 if (i > path.size() - 1 || stop) {
-                    Bukkit.getScheduler().cancelTask(Cinematix.this.runnable);
-                    Cinematix.this.runnable = -1;
-                    Cinematix.this.stop = false;
+                    int taskId = runnables.get(player);
+                    Bukkit.getScheduler().cancelTask(taskId);
+                    runnables.remove(player);
+                    stopping.remove(player);
                     return;
                 }
 
@@ -120,13 +147,30 @@ public class Cinematix {
             }
         };
 
-        this.stop = false;
-        this.runnable = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, task, 0, 1);
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, task, 0, 1);
+
+        stopping.put(player, false);
+        runnables.put(player, taskId);
+        return true;
     }
 
-    public void stop(Player player) {
-        if (!isRunning())
-            return;
-        stop = true;
+    /**
+     * Stop an ongoing cinematix.
+     * @param player The player who's cinematix should stop.
+     * @return True if a cinematix was in progress, false if otherwise.
+     */
+    public boolean stop(Player player) {
+        if (!isRunning(player))
+            return false;
+        stopping.put(player, true);
+        return true;
+    }
+
+    /**
+     * @param player The player to check.
+     * @return True if a player's cinematix is in progress, false if otherwise.
+     */
+    public boolean isRunning(Player player) {
+        return runnables.containsKey(player);
     }
 }

@@ -149,7 +149,7 @@ public class CinematixCmd implements CommandExecutor {
             player.sendMessage(ChatColor.GREEN + "Starting cinematic (" + time + " seconds, " + delay + " delay).");
         }
         else if (sub.equals("stop")) {
-            if (!cine.isRunning()) {
+            if (!cine.isRunning(player)) {
                 player.sendMessage(ChatColor.RED + "There is no cinematic in progress.");
                 return true;
             }
