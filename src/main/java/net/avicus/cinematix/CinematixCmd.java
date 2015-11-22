@@ -26,14 +26,14 @@ public class CinematixCmd implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.GOLD + "/cinematic <...>");
+            sender.sendMessage(ChatColor.GOLD + "/cinematix <...>");
             sender.sendMessage(ChatColor.GOLD + "  add " + ChatColor.GRAY + "(adds a new point)");
             sender.sendMessage(ChatColor.GOLD + "  remove (point #) " + ChatColor.GRAY + "(removes an existing point)");
             sender.sendMessage(ChatColor.GOLD + "  points " + ChatColor.GRAY + "(list existing points)");
             sender.sendMessage(ChatColor.GOLD + "  view <point #> " + ChatColor.GRAY + "(teleport to an existing point)");
             sender.sendMessage(ChatColor.GOLD + "  clear " + ChatColor.GRAY + "(clear all points)");
-            sender.sendMessage(ChatColor.GOLD + "  start <seconds> (delay) " + ChatColor.GRAY + "(start the cinematic)");
-            sender.sendMessage(ChatColor.GOLD + "  stop " + ChatColor.GRAY + "(stop the ongoing cinematic)");
+            sender.sendMessage(ChatColor.GOLD + "  start <seconds> (delay) " + ChatColor.GRAY + "(start the cinematix)");
+            sender.sendMessage(ChatColor.GOLD + "  stop " + ChatColor.GRAY + "(stop the ongoing cinematix)");
             sender.sendMessage(ChatColor.GOLD + "  version " + ChatColor.GRAY + "(check the version)");
             return true;
         }
@@ -42,11 +42,11 @@ public class CinematixCmd implements CommandExecutor {
 
         if (sub.equals("version")) {
             String version = plugin.getDescription().getVersion();
-            sender.sendMessage(ChatColor.YELLOW + "Currently running Cinematic " + ChatColor.GOLD + version + ChatColor.YELLOW + "!");
+            sender.sendMessage(ChatColor.YELLOW + "Currently running " + ChatColor.GOLD + "Cinematix " + version + ChatColor.YELLOW + "!");
             return true;
         }
         else if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Must be a player to use that cinematic command.");
+            sender.sendMessage(ChatColor.RED + "Must be a player to use that cinematix command.");
             return true;
         }
 
@@ -103,7 +103,7 @@ public class CinematixCmd implements CommandExecutor {
                 return true;
             }
 
-            player.sendMessage(ChatColor.GREEN + "Cinematic points:");
+            player.sendMessage(ChatColor.GREEN + "Cinematix points:");
             for (Location loc : cine.getPoints()) {
                 DecimalFormat format = new DecimalFormat("#.##");
                 String x = format.format(loc.getX());
@@ -123,7 +123,7 @@ public class CinematixCmd implements CommandExecutor {
             try {
                 seconds = Integer.parseInt(args[1]);
             } catch (Exception e) {
-                player.sendMessage(ChatColor.RED + "Please provide the duration of the cinematic in seconds.");
+                player.sendMessage(ChatColor.RED + "Please provide the duration of the cinematix in seconds.");
                 return true;
             }
 
@@ -135,7 +135,7 @@ public class CinematixCmd implements CommandExecutor {
                 if (args.length > 2)
                     delay = Integer.parseInt(args[2]);
             } catch (Exception e) {
-                player.sendMessage(ChatColor.RED + "Please provide the delay of the cinematic in seconds.");
+                player.sendMessage(ChatColor.RED + "Please provide the delay of the cinematix in seconds.");
                 return true;
             }
 
@@ -146,16 +146,16 @@ public class CinematixCmd implements CommandExecutor {
                 }
             }, delay * 20);
 
-            player.sendMessage(ChatColor.GREEN + "Starting cinematic (" + time + " seconds, " + delay + " delay).");
+            player.sendMessage(ChatColor.GREEN + "Starting cinematix (" + time + " seconds, " + delay + " delay).");
         }
         else if (sub.equals("stop")) {
             if (!cine.isRunning(player)) {
-                player.sendMessage(ChatColor.RED + "There is no cinematic in progress.");
+                player.sendMessage(ChatColor.RED + "There is no cinematix in progress.");
                 return true;
             }
 
             cine.stop(player);
-            player.sendMessage(ChatColor.GREEN + "The cinematic in progress has been stopped.");
+            player.sendMessage(ChatColor.GREEN + "The cinematix in progress has been stopped.");
         }
         else {
             sender.sendMessage(ChatColor.RED + "Unknown subcommand, type /cinematix for help.");
