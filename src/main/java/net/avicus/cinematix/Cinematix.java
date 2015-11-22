@@ -1,18 +1,22 @@
 package net.avicus.cinematix;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cinematix {
-    private Player player;
+    private JavaPlugin plugin;
     private List<Location> points;
+    private int runnable = -1;
+    private boolean stop;
 
-    public Cinematix(Player player) {
-        this.player = player;
+    public Cinematix(JavaPlugin plugin) {
+        this.plugin = plugin;
         this.points = new ArrayList<Location>();
     }
 
@@ -21,6 +25,11 @@ public class Cinematix {
     }
 
     public List<Location> generatePath(double seconds) {
+        if (points.size() == 0)
+            return new ArrayList<Location>();
+
+        World world = points.get(0).getWorld();
+
         double totalTime = seconds * (20.0 / 1.0);
 
         List<Double> distances = new ArrayList<Double>();
@@ -47,7 +56,6 @@ public class Cinematix {
 
         // path are the places to teleport to every tick (1/20th second)
         List<Location> path = new ArrayList<Location>();
-        World world = player.getWorld();
 
         for (int i = 0; i < points.size() - 1; i++) {
             Location from = points.get(i);
@@ -84,5 +92,41 @@ public class Cinematix {
         }
 
         return path;
+    }
+
+    public boolean isRunning() {
+        return runnable != -1;
+    }
+
+    public void start(final Player player, final double time) {
+        Runnable task = new Runnable() {
+
+            int i = 0;
+            List<Location> path = generatePath(time);
+
+            @Override
+            public void run() {
+                if (i > path.size() - 1 || stop) {
+                    Bukkit.getScheduler().cancelTask(Cinematix.this.runnable);
+                    Cinematix.this.runnable = -1;
+                    Cinematix.this.stop = false;
+                    return;
+                }
+
+                for (int x = 0; x < 5; x++)
+                    player.teleport(path.get(i));
+
+                i++;
+            }
+        };
+
+        this.stop = false;
+        this.runnable = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, task, 0, 1);
+    }
+
+    public void stop(Player player) {
+        if (!isRunning())
+            return;
+        stop = true;
     }
 }

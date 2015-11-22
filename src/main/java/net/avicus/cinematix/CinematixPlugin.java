@@ -20,7 +20,7 @@ public class CinematixPlugin extends JavaPlugin {
     public Cinematix getCinematix(Player player) {
         if (cinematix.containsKey(player))
             return cinematix.get(player);
-        cinematix.put(player, new Cinematix(player));
+        cinematix.put(player, new Cinematix(this));
         return getCinematix(player);
     }
 }
