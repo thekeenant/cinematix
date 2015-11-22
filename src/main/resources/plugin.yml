@@ -1,0 +1,14 @@
+name: ${plugin.name}
+description: ${project.description}
+main: ${plugin.mainClass}
+version: ${project.version}
+authors: [Keenan Thompson]
+prefix: ${plugin.name}
+commands:
+  cinematix:
+    aliases: [cine,cinematic,cinematics]
+    description: Control cinematix.
+permissions:
+  cinematix:
+    description: Allows usage of the Cinematix plugin
+    default: op
